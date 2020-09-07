@@ -94,22 +94,22 @@ class MaterialTabWidget(QWidget):
         self.bem_beamene_le = QLineEdit()
         self.bem_beamene_le.setValidator(QDoubleValidator(0,1e11,999))
         self.bem_beamene_le.returnPressed.connect(self.apply_beamene)
-        self.bem_beamene_le.setText("20.")
+        #self.bem_beamene_le.setText("10.")
         self.bem_beamalpha_le = QLineEdit()
         self.bem_beamalpha_le.setValidator(QDoubleValidator(0,90.,999))
         self.bem_beamalpha_le.returnPressed.connect(self.apply_beamalpha)
-        self.bem_beamalpha_le.setText("45.")
+        #self.bem_beamalpha_le.setText("45.")
         self.bem_beambeta_le = QLineEdit()
         self.bem_beambeta_le.setValidator(QDoubleValidator(0,90.,999))
         self.bem_beambeta_le.returnPressed.connect(self.apply_beambeta)
-        self.bem_beambeta_le.setText("45.")
+        #self.bem_beambeta_le.setText("45.")
         self.bem_beamflux_le = QLineEdit()
         self.bem_beamflux_le.setValidator(QDoubleValidator(0,1e20,999))
         self.bem_beamflux_le.returnPressed.connect(self.apply_beamflux)
-        self.bem_beamflux_le.setText("1e6")# 1 M/sec
+        #self.bem_beamflux_le.setText("1e6")# 1 M/sec
         self.bem_time_le = QLineEdit()# duration
         self.bem_time_le.setValidator(QDoubleValidator(0,1e30,999))
-        self.bem_time_le.setText("7200.")# 2 hours
+        #self.bem_time_le.setText("7200.")# 2 hours
         self.bem_time_le.returnPressed.connect(self.apply_beam_time)
 
         self.ra_cb = QComboBox()
@@ -126,9 +126,9 @@ class MaterialTabWidget(QWidget):
         self.rad_act_le.setValidator(QDoubleValidator(0,1e30,999))
         self.rad_date_le.setValidator(QIntValidator(19000101,99991231))
         self.rad_time_le.setValidator(QDoubleValidator(0,1e30,999))
-        self.rad_act_le.setText("1e6")
-        self.rad_date_le.setText("20110311")
-        self.rad_time_le.setText("3600.")
+        #self.rad_act_le.setText("1e6")
+        #self.rad_date_le.setText("20110311")
+        #self.rad_time_le.setText("3600.")
         self.rad_act_le.returnPressed.connect(self.apply_rad_act)
         self.rad_date_le.returnPressed.connect(self.apply_rad_date)
         self.rad_time_le.returnPressed.connect(self.apply_rad_time)
@@ -234,7 +234,9 @@ class MaterialTabWidget(QWidget):
         self.apply_beambeta()
         self.apply_beamflux()
         self.apply_beam_time()
+        self.parent.bem={}
         self.parent.bem=copy.deepcopy(self.bem)
+        
 
     def add_radionuclide(self):
         if "name" not in [*self.rad.keys()]:
@@ -247,7 +249,6 @@ class MaterialTabWidget(QWidget):
         self.parent.update_line_table()
 
     def _add_target(self):
-        self.add_beam()
         self.parent.tgt=copy.deepcopy(self.mat)            
         self.parent.update_line_table()
         row=self.parent.cc_table.rowCount()
@@ -262,7 +263,6 @@ class MaterialTabWidget(QWidget):
         self.parent.cc_table.setItem(row,3, QTableWidgetItem(self.mat['name']))        
     
     def _add_detector(self):
-        self.add_beam()
         self.parent.det=copy.deepcopy(self.mat)
         self.parent.dets.append(copy.deepcopy(self.mat))
         row=self.parent.cc_table.rowCount()
@@ -273,7 +273,6 @@ class MaterialTabWidget(QWidget):
         self.parent.cc_table.setItem(row,3, QTableWidgetItem(self.mat['name']))
 
     def _add_filter_materials(self):
-        self.add_beam()
         self.parent.bet=copy.deepcopy(self.mat)
         self.parent.bets.append(copy.deepcopy(self.mat))
         row=self.parent.cc_table.rowCount()
@@ -299,7 +298,7 @@ class MaterialTabWidget(QWidget):
         if self.name=='tgt':   self._add_target()
         elif self.name=='det': self._add_detector()
         elif self.name=='bet': self._add_filter_materials()
-            
+                    
 
     def remove_material(self):
         items=None
@@ -367,6 +366,8 @@ class MaterialTabWidget(QWidget):
             self.parent.bet={}
             self.parent.bets=[]
             items = self.parent.cc_table.findItems("%s"%(self.FILTER_STR), Qt.MatchStartsWith)
+        elif self.name=='bem':
+            self.parent.bem={}
         if items:
             for item in items: self.parent.cc_table.removeRow(item.row())
         
@@ -449,7 +450,6 @@ class MaterialTabWidget(QWidget):
             self.bem_beamflux_le.setText("1e6")
             self.bem['beamflux']=1e6
 
-
     def apply_beam_time(self):
         if self.bem_time_le.text()!="":
             try:
@@ -460,7 +460,7 @@ class MaterialTabWidget(QWidget):
                 self.parent.beam_duration=7200.
         else:
             self.bem_time_le.setText("7200.")
-            self.parent.beam_duration=7200.            
+            self.parent.beam_duration=7200.
 
     def apply_rad_time(self):
         if self.rad_time_le.text()!="":

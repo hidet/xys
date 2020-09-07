@@ -42,7 +42,7 @@ class ApplicationWindow(QMainWindow):
         self.er_low=0.1# keV
         self.er_high=20.# keV
         self.er_step=0.001# keV
-        self.enes_keV=np.arange(self.er_low,self.er_high+1e-3,self.er_step)
+        self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
         # IUPAC macro
         self.LINES=['KL3','KL2','KM3','KM2',
                     'L3M5','L3M4','L2M4','L3N5',
@@ -301,6 +301,7 @@ class ApplicationWindow(QMainWindow):
         self.bettab.reset_material()
         self.tgttab.reset_material()
         self.radtab.reset_material()
+        self.bemtab.reset_material()
         self.init_cc_table()
         self.init_line_table()
         if fname is None:
@@ -316,6 +317,8 @@ class ApplicationWindow(QMainWindow):
         self.bemtab.bem_beambeta_le.setText(dic['beam_beta'][0])
         self.bemtab.bem_beamflux_le.setText(dic['beam_flux'][0])
         self.bemtab.bem_time_le.setText(dic['beam_time'][0])
+        self.bemtab.add_beam()
+        print(self.bem['beamene'],self.bem['beamalpha'],self.bem['beambeta'],self.bem['beamflux'],self.beam_duration)
 
         for i in range(len(dic['target'])):
             self.tgttab.mat_thick_le.setText(dic['target_thickness'][i])
@@ -693,7 +696,7 @@ class ApplicationWindow(QMainWindow):
             self.ax_fl.legend(loc='upper right',fontsize=8)
             self.ax_fl.set_xlabel("Energy (keV)")
             self.ax_fl.set_xlim(self.er_low,self.er_high)
-            if self.er_low==0.1: self.ax_fl.set_xlim(0.,self.er_high)
+            if self.er_low<=0.1: self.ax_fl.set_xlim(0.,self.er_high)
             self.ax_fl.set_ylabel("Normalized intensity")
             self.ax_fl.figure.canvas.draw()
         
@@ -702,11 +705,12 @@ class ApplicationWindow(QMainWindow):
     def _update_fluor_cv(self):
         #print("update_fluor_cv")
         self.apply_enerangelow()
+        if self.er_low<=0.1: self.er_low=0.1
         self.apply_enerangehigh()
         self.apply_enerangestep()
         self.apply_detector_resolution()
         self.apply_detector_solidangle()
-        self.enes_keV=np.arange(self.er_low,self.er_high+1e-3,self.er_step)
+        self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
         self.ax_fl.clear()
         if "name" not in [*self.tgt.keys()]:
             sys.stderr.write('Warning: update_fluor_cv, no target set\n')
@@ -753,18 +757,19 @@ class ApplicationWindow(QMainWindow):
         self.ax_fl.legend(loc='upper right',fontsize=8)
         self.ax_fl.set_xlabel("Energy (keV)")
         self.ax_fl.set_xlim(self.er_low,self.er_high)
-        if self.er_low==0.1: self.ax_fl.set_xlim(0.,self.er_high)
+        if self.er_low<=0.1: self.ax_fl.set_xlim(0.,self.er_high)
         self.ax_fl.set_ylabel("Normalized intensity")
         self.ax_fl.figure.canvas.draw()
 
         
     def _update_trans_cv(self):
         self.apply_enerangelow()
+        if self.er_low<=0.1: self.er_low=0.1
         self.apply_enerangehigh()
         self.apply_enerangestep()
         self.apply_detector_resolution()
         self.apply_detector_solidangle()
-        self.enes_keV=np.arange(self.er_low,self.er_high+1e-3,self.er_step)
+        self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
         self.ax.clear()
         trans_all,trans_each=self._transmission()
         phabs_all,phabs_each=self._photoel()
@@ -784,8 +789,8 @@ class ApplicationWindow(QMainWindow):
         self.ax.plot(self.enes_keV, trans_all*phabs_all,'-',color='black',label="trans x phabs")
         self.ax.legend(loc='upper right',fontsize=8)
         self.ax.set_xlabel("Energy (keV)")
-        self.ax_fl.set_xlim(self.er_low,self.er_high)
-        if self.er_low==0.1: self.ax_fl.set_xlim(0.,self.er_high)
+        self.ax.set_xlim(self.er_low,self.er_high)
+        if self.er_low<=0.1: self.ax.set_xlim(0.,self.er_high)
         self.ax.set_ylim(0,1.)
         self.ax.set_ylabel("Transmission and absorption")
         self.ax.figure.canvas.draw()
