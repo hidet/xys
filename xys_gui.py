@@ -26,8 +26,10 @@ import material
 import line_wrap
 from line_wrap import voigt
 
+sigma_from_fwhm=2.*np.sqrt(2.*np.log(2))
 
-                
+
+
 class ApplicationWindow(QMainWindow):
     def __init__(self, parent=None):
         super(ApplicationWindow, self).__init__(parent)
@@ -208,7 +210,11 @@ class ApplicationWindow(QMainWindow):
         tmbox.addWidget(QLabel("Energy range (keV)"))
         tmbox.addLayout(rangebox)
         tmbox.addWidget(plotButton)
-        tmbox.addWidget(QLabel("Detector resolution FWHM (eV)"))
+        self.chkbox_resol = QCheckBox("Detector resolution FWHM (eV)")
+        self.chkbox_resol.stateChanged.connect(self.chkbox_resol_action)
+        self.chkbox_resol.setChecked(True)
+        #tmbox.addWidget(QLabel("Detector resolution FWHM (eV)"))
+        tmbox.addWidget(self.chkbox_resol)
         tmbox.addWidget(self.detector_resolution_le)
         tmbox.addWidget(QLabel("Solidangle ratio (0.-1.)"))
         tmbox.addWidget(self.detector_solidangle_le)
@@ -417,14 +423,23 @@ class ApplicationWindow(QMainWindow):
             self.er_step=0.001# 1 eV
             self.ene_range_step_le.setText("0.001")
 
+
+    def chkbox_resol_action(self,state):
+        if (Qt.Checked == state):
+            self.apply_detector_resolution()
+        else:
+            self.detector_resolution=0.
+            self.detector_resolution_le.setText("0.")
+            print("Detector resolution is not considered")
             
     def apply_detector_resolution(self):
         s=self.detector_resolution_le.text()
         if s!="":
             self.detector_resolution=float(s)
         else:
-            self.detector_resolution=8.
-            self.detector_resolution_le.setText("8.")
+            self.detector_resolution=0.
+            self.detector_resolution_le.setText("0.")
+            print("Detector resolution is not considered")
 
 
     def apply_detector_solidangle(self):
@@ -681,16 +696,16 @@ class ApplicationWindow(QMainWindow):
             for lt,ene,gamma,norm in zip(XrayLineTypes,XrayEnergies,XrayWidths,XrayIntensities):
                 if ene>0. and gamma>0. and norm>0.:
                     if elXray+lt in self.not_draw_lines: continue
-                    specX += activitytoday * radtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,gamma/2.,0.)
+                    specX += activitytoday * radtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,gamma/2.,resolution/sigma_from_fwhm)
                     
             # Gamma-ray
             specG=np.zeros_like(self.enes_keV,dtype=np.float64)
             for ene,norm in zip(GammaEnergies,GammaIntensities):
                 if ene>0. and norm>0.:
                     if name+"Gamma" in self.not_draw_lines: continue
-                    specG += activitytoday * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,1.0/2.,0.)
+                    specG += activitytoday * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,1.0/2.,resolution/sigma_from_fwhm)
 
-            # --- here should be detector resolution smearing ----
+
             self.ax_fl.plot(self.enes_keV,specX,linestyle='-',marker='',label=elXray)
             self.ax_fl.plot(self.enes_keV,specG,linestyle='-',marker='',label=name)
             self.ax_fl.legend(loc='upper right',fontsize=8)
@@ -746,10 +761,9 @@ class ApplicationWindow(QMainWindow):
         for i,(el,elind,lt,sgblt,ene,gamma,norm) in enumerate(zip(els,el_inds,linetypes,sgblinetypes,enes,gammas,intens)):
             if ene>0. and gamma>0.:
                 if el+sgblt in self.not_draw_lines: continue
-                specs[elind] += flux * beamtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,gamma/2.,0.)
+                specs[elind] += flux * beamtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,gamma/2.,resolution/sigma_from_fwhm)
         cindex={x:i for i,x in enumerate([xrl.AtomicNumberToSymbol(z) for z in zs])}
         for el,spec in zip(elms,specs):
-            # --- here should be detector resolution smearing ----
             self.ax_fl.plot(self.enes_keV,spec,linestyle='-',marker='',color=cm.jet(cindex[el]/len(cindex)),label=el)
 
         if len(self.rads)!=0:  self._update_fluor_cv_by_radionuclide()
