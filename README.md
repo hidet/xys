@@ -1,10 +1,39 @@
-# xys
+# X-ray yield simulation (xys)
 
-An X-ray yield simulator for an expeirmentalist with GUI.
+X 線収量を予測するための Python GUI コード。フォトンビームを標的に当て標的からの蛍光 X 線を測定する場合や線源からの X 線やガンマ線を測定する場合を想定している。
+> これはモンテカルロシミュレーションではないので正確な値を求めるものではない。
 
-This is not a Monte Carlo simulation, just use to geuss the transmission of X-rays or the number of counts with a detector.
 
-Need
-- python3
-- xraylib
-- PyQt5
+
+## 必要なもの
+
+ - Python 3 以上
+ - [xraylib](https://github.com/tschoonj/xraylib)
+ - PyQt5
+
+
+
+## 原理
+
+基本的には xraylib にまとめられている断面積の情報を使って物質内でのフォトンの透過や吸収そして蛍光を計算している。xraylib には[オンライン版](http://lvserver.ugent.be/xraylib-web/)もありますので、どのような物質に対してどのような情報を得られるのか見ておくと理解しやすい。
+
+### 使っている断面積
+- Transmission: 　　　　`CS_Total_CP`
+- Absorption: 　　　　　`CS_Total_CP`
+- PhotoElectric effect: 　`CS_Photo_CP`
+- Fluorescence: 　　　　`CS_FluorLine_Kissel`
+
+CP は Compound を指しており、compound parser で化合物の化学式と密度を定義できる。NIST で既に定義された化合物も利用できる (NIST compound)。化合物では元素比や質量比を考慮してある。
+
+フォトンビームによる標的の蛍光を見る場合は**標的内での自己吸収**も考慮している。フォトンの入射角度と蛍光 X 線の取り出し角度を設定できるようにしてある (例えば 入射角 45°、取り出し角 45°)。
+
+ここに必要な数式とか？
+
+
+
+
+## 使い方
+ターミナルで
+`python xys_gui.py`
+とすると GUI が立ち上がる。
+
