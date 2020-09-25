@@ -94,22 +94,22 @@ class MaterialTabWidget(QWidget):
         self.bem_beamene_le = QLineEdit()
         self.bem_beamene_le.setValidator(QDoubleValidator(0,1e11,999))
         self.bem_beamene_le.returnPressed.connect(self.apply_beamene)
-        #self.bem_beamene_le.setText("10.")
+        self.bem_beamene_le.setText("15.")
         self.bem_beamalpha_le = QLineEdit()
         self.bem_beamalpha_le.setValidator(QDoubleValidator(0,90.,999))
         self.bem_beamalpha_le.returnPressed.connect(self.apply_beamalpha)
-        #self.bem_beamalpha_le.setText("45.")
+        self.bem_beamalpha_le.setText("45.")
         self.bem_beambeta_le = QLineEdit()
         self.bem_beambeta_le.setValidator(QDoubleValidator(0,90.,999))
         self.bem_beambeta_le.returnPressed.connect(self.apply_beambeta)
-        #self.bem_beambeta_le.setText("45.")
+        self.bem_beambeta_le.setText("45.")
         self.bem_beamflux_le = QLineEdit()
         self.bem_beamflux_le.setValidator(QDoubleValidator(0,1e20,999))
         self.bem_beamflux_le.returnPressed.connect(self.apply_beamflux)
-        #self.bem_beamflux_le.setText("1e6")# 1 M/sec
+        self.bem_beamflux_le.setText("1e6")# 1 M/sec
         self.bem_time_le = QLineEdit()# duration
         self.bem_time_le.setValidator(QDoubleValidator(0,1e30,999))
-        #self.bem_time_le.setText("7200.")# 2 hours
+        self.bem_time_le.setText("7200.")# 2 hours
         self.bem_time_le.returnPressed.connect(self.apply_beam_time)
 
         self.ra_cb = QComboBox()
@@ -126,9 +126,9 @@ class MaterialTabWidget(QWidget):
         self.rad_act_le.setValidator(QDoubleValidator(0,1e30,999))
         self.rad_date_le.setValidator(QIntValidator(19000101,99991231))
         self.rad_time_le.setValidator(QDoubleValidator(0,1e30,999))
-        #self.rad_act_le.setText("1e6")
-        #self.rad_date_le.setText("20110311")
-        #self.rad_time_le.setText("3600.")
+        self.rad_act_le.setText("1e6")
+        self.rad_date_le.setText("20110311")
+        self.rad_time_le.setText("3600.")
         self.rad_act_le.returnPressed.connect(self.apply_rad_act)
         self.rad_date_le.returnPressed.connect(self.apply_rad_date)
         self.rad_time_le.returnPressed.connect(self.apply_rad_time)
