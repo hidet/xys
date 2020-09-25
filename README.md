@@ -59,7 +59,7 @@ CP は Compound を指しており、compound parser で化合物の化学式と
 
 
 
-**Beam** はフォトンによる標的の励起を想定している。ここでは放射光のように単一エネルギーのフォトンを想定しているが、X 線管のような広いエネルギー分布をもつ X 線源を用いて、あるエネルギーだけに注目した場合と考えてもよい。パラメータは Incident energy (keV), Beam flux (photons/sec), Incident angle (dgree), OUtgoing angle (degree), Beam time (sec) で、エラー回避のためにテキトウな初期値が入力してある。**Set** を押すと反映されるが、**Plot** 時に値を取りに行くので押し忘れは気にしなくてもよいかもしれない。エラー回避のため**Reset** を押してもゼロにならない仕様である。
+**Beam** はフォトンによる標的の励起を想定している。ここでは放射光のように単一エネルギーのフォトンを想定しているが、X 線管のような広いエネルギー分布をもつ X 線源を用いて、あるエネルギーだけに注目した場合と考えてもよい。パラメータは Incident energy (keV), Beam flux (photons/sec), Incident angle (dgree), Outgoing angle (degree), Beam time (sec) で、エラー回避のためにテキトウな初期値が入力してある。**Set** を押すと反映されるが、**Plot** 時に値を取りに行くので押し忘れは気にしなくてもよいかもしれない。エラー回避のため**Reset** を押してもゼロにならない仕様である。
 
 
 
@@ -76,4 +76,4 @@ Energy range の設定は Low, High を入力してその間の Step を keV 単
 ![plot_xys](https://user-images.githubusercontent.com/10286550/94258180-bf384000-ff2c-11ea-9386-c19a647b15d3.jpg)
 
 
-
+csv ファイルについて ... 更新予定
