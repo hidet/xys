@@ -37,3 +37,8 @@ CP は Compound を指しており、compound parser で化合物の化学式と
 `python xys_gui.py`
 とすると GUI が立ち上がる。
 
+左側のカラムにパラメータなどの設定項目がある。パラメータが固定であれば csv ファイルを読み込むことで設定することも可能で、自分がよく使うデフォルトの設定を選択できるようにしてある。主な設定項目は、**Detector**, **Target**, **Filter**, **RadioNucl**, **Beam** となっている。
+
+![GUI 全体像](https://user-images.githubusercontent.com/10286550/94250985-3caa8300-ff22-11ea-9b36-392d7eb59f59.jpg)
+
+
