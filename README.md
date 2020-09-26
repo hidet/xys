@@ -57,11 +57,5 @@ Energy range の設定は Low, High を入力してその間の Step を keV 単
 
 CP は Compound を指しており、compound parser で化合物の化学式と密度を定義できる。NIST で既に定義された化合物も利用できる (NIST compound)。化合物では元素比や質量比を考慮してある。
 
-
-
-![texclip20200926200737](https://user-images.githubusercontent.com/10286550/94347440-79669f00-0034-11eb-9d72-5702b71a2249.png)
-
-
-
-![](https://user-images.githubusercontent.com/10286550/94347443-7ec3e980-0034-11eb-9234-21cbf61e73b4.png)
-
+詳しい原理は以下の PDF ファイルに記した。
+[xys.pdf](https://github.com/hidet/xys/files/5287227/xys.pdf)
