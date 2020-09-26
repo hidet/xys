@@ -1,4 +1,4 @@
-﻿# X-ray yield simulation (xys)
+# X-ray yield simulation (xys)
 
 特性 X 線収量を予測するための Python GUI コード。フォトンビームを標的に当て標的からの蛍光 X 線を測定する場合や線源からの X 線やガンマ線を測定する場合を想定している。
 > これはモンテカルロシミュレーションではないので正確な値を求めるものではない。
@@ -57,19 +57,11 @@ Energy range の設定は Low, High を入力してその間の Step を keV 単
 
 CP は Compound を指しており、compound parser で化合物の化学式と密度を定義できる。NIST で既に定義された化合物も利用できる (NIST compound)。化合物では元素比や質量比を考慮してある。
 
-### Transmission / Absorption
-フォトンの透過の割合を計算するには **mass attenuation coefficients** $\mu/\rho$ (cm2/g) を使って$$\exp{[-(\mu/\rho)\rho t]}$$とかける。ここで $\rho$ は物質の密度 (g/cm3), $t$ は厚さ (cm) である。密度で割っているのを明示するために $\rho$ を書いているが、単に $\mu$ とかく場合もあるので単位には注意が必要。
-吸収の割合は 1 から透過の割合を引けばよいので $$1-\exp{[-(\mu/\rho) \rho t]}$$ とかける。xraylib では **total attenuation cross section** `CS_Total_CP` となっているが、単位的には $\mu/\rho$ の値を採用していて、両者には次の関係がある $$\mu/\rho = \sigma_{\rm{tot}}/uA$$ ここで $u$ は atomic mass unit (1.660 540 2$\times 10^{-24}$ g), $A$ は標的元素の相対質量である。$\sigma_{\rm{tot}}$ の単位は cm2/atom になる。ちなみに `CSb_Total_CP` を使えば barn/atom 単位の断面積が得られる。
 
-化合物の場合は $i$ 番目の元素の mass fraction $w_i$ を用いて $$\mu/\rho = \sum_i w_i (\mu/\rho)_i$$ とかける。
 
-### PhotoElectric Effect
-X 線のエネルギー領域では、光電効果は主に測定器内でのエネルギー吸収と考えてよいのでフォトンの吸収として計算する。先程の $\sigma_{\rm{tot}}$ には光電効果の断面積 $\sigma_{\rm{ph}}$ が含まれていて、xraylib ではその光電効果の部分 $(\mu/\rho)_{\rm{ph}}$ だけを `CS_Photo_CP` でとってくることができる。計算は吸収なので $$1-\exp{[-(\mu/\rho)_{\rm{ph}} \rho t]}$$ となる。
+![texclip20200926200737](https://user-images.githubusercontent.com/10286550/94347440-79669f00-0034-11eb-9d72-5702b71a2249.png)
 
-### X-ray Fluorescence
-フォトンによる励起後に X 線を放出し脱励起する現象を記述する。ここではある X 線の **fluorescence cross section** として xraylib の `CS_FluorLine_Kissel` を採用した。ある元素の K$_{\alpha1}$ X 線の fluorescence cross section は次のように定義できる $$Q_{K_{\alpha1}} = \sigma_K \omega_K R_{K_{\alpha1}}$$ ここで、$\sigma_K$ は光電効果で K-shell を励起する断面積 (cm2/g)、$\omega_K$ は電子が K-shell へ遷移するときに X 線を出す割合 fluorescence yield, $R_{K_{\alpha1}}$ は放出される X 線が K$_{\alpha1}$ である割合 radiative rate である。つまりこの3つの物理量を一つにまとめたものとして使っている。
-> 最近では xraylib に cascade を考慮した fluorescence cross section が導入されており、`CS_FluorLine_Kissel_Cascade`, `CS_FluorLine_Kissel_Nonradiative_Cascade`, `CS_FluorLine_Kissel_Radiative_Cascade`, `CS_FluorLine_Kissel_no_Cascade` を使うことができる。`CS_FluorLine_Kissel` は `CS_FluorLine_Kissel_Cascade` と同じもの。
 
-フォトンビームによる標的の蛍光を見る場合は**標的内での自己吸収**も考慮しなければならない。フォトンビームの入射角度 $\alpha$, 蛍光 X 線の取り出し角度 $\beta$ (これらは **Beam** のタブで設定できる) としたとき、測定器に入る標的 $i$ 番目元素の K$_{\alpha1}$ X 線の fluorescence は次のようにかける $$I_{i,K_{\alpha1}} = I_0 \frac{\Omega}{4\pi} w_i Q_{i,K_{\alpha1}} \rho t \left(\frac{1-\exp{(-\chi\rho t)}}{\chi\rho t}\right) $$ $$\chi = \frac{\sum_{k=1}^n w_k (\mu/\rho)_{k}(E_0)}{\sin{\alpha}} + \frac{\sum_{k=1}^n w_k (\mu/\rho)_{k}(E_{K_{\alpha1}})}{\sin{\beta}}$$ ここで $I_0$ は入射フォトン強度, $\Omega$ は測定器の立体角, $w_i$ は $i$ 番目元素の mass fraction, $Q_{i,K_{\alpha1}}$ は $i$ 番目元素の K$_{\alpha1}$ X 線の fluorescence cross section, $\rho$ は標的密度, $t$ は標的の厚さ, $(\mu/\rho)_k (E)$ は $k$ 番目元素のエネルギー $E$ における mass attenuation coefficients で、$\sum_{k=1}^n$ は標的化合物全体を表している。後ろの括弧内の表記だけではあまりにも不親切なので、できるだけ計算の詳細を以下に記しておく。
 
+![](https://user-images.githubusercontent.com/10286550/94347443-7ec3e980-0034-11eb-9234-21cbf61e73b4.png)
 
