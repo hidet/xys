@@ -43,7 +43,11 @@
 
 Energy range の設定は Low, High を入力してその間の Step を keV 単位で入力する。あまり小さな step にするとプロットする点の数が大きくなるので重くなることが予想される。
 
+<<<<<<< HEAD
 測定器の立体角は Solidangle ratio で 0 から 1 の実数を入力する。これは X 線の強度にリニアに効いてくる。
+=======
+**Beam** はフォトンによる標的の励起を想定している。ここでは放射光のように単一エネルギーのフォトンを想定しているが、X 線管のような広いエネルギー分布をもつ X 線源を用いて、あるエネルギーだけに注目した場合と考えてもよい。パラメータは Incident energy (keV), Beam flux (photons/sec), Incident angle (dgree), Outgoing angle (degree), Beam time (sec) で、エラー回避のためにテキトウな初期値が入力してある。**Set** を押すと反映されるが、**Plot** 時に値を取りに行くので押し忘れは気にしなくてもよいかもしれない。エラー回避のため**Reset** を押してもゼロにならない仕様である。
+>>>>>>> fa3a412e8ab2831d15a63ca364ce89c6ebeee1e4
 
 ## 原理
 
@@ -72,4 +76,4 @@ X 線のエネルギー領域では、光電効果は主に測定器内でのエ
 
 フォトンビームによる標的の蛍光を見る場合は**標的内での自己吸収**も考慮しなければならない。フォトンビームの入射角度 $\alpha$, 蛍光 X 線の取り出し角度 $\beta$ (これらは **Beam** のタブで設定できる) としたとき、測定器に入る標的 $i$ 番目元素の K$_{\alpha1}$ X 線の fluorescence は次のようにかける $$I_{i,K_{\alpha1}} = I_0 \frac{\Omega}{4\pi} w_i Q_{i,K_{\alpha1}} \rho t \left(\frac{1-\exp{(-\chi\rho t)}}{\chi\rho t}\right) $$ $$\chi = \frac{\sum_{k=1}^n w_k (\mu/\rho)_{k}(E_0)}{\sin{\alpha}} + \frac{\sum_{k=1}^n w_k (\mu/\rho)_{k}(E_{K_{\alpha1}})}{\sin{\beta}}$$ ここで $I_0$ は入射フォトン強度, $\Omega$ は測定器の立体角, $w_i$ は $i$ 番目元素の mass fraction, $Q_{i,K_{\alpha1}}$ は $i$ 番目元素の K$_{\alpha1}$ X 線の fluorescence cross section, $\rho$ は標的密度, $t$ は標的の厚さ, $(\mu/\rho)_k (E)$ は $k$ 番目元素のエネルギー $E$ における mass attenuation coefficients で、$\sum_{k=1}^n$ は標的化合物全体を表している。後ろの括弧内の表記だけではあまりにも不親切なので、できるだけ計算の詳細を以下に記しておく。
 
-
+csv ファイルについて ... 更新予定
