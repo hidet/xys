@@ -45,6 +45,8 @@ class ApplicationWindow(QMainWindow):
         self.er_high=20.# keV
         self.er_step=0.001# keV
         self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
+        self.qeout=np.zeros_like(self.enes_keV)# for output
+        self.flout=np.zeros_like(self.enes_keV)# for output
         # IUPAC macro
         self.LINES=['KL3','KL2','KM3','KM2',
                     'L3M5','L3M4','L2M4','L3N5',
@@ -159,6 +161,8 @@ class ApplicationWindow(QMainWindow):
 
         plotButton = QPushButton("Plot")
         plotButton.clicked.connect(self._plot_trans_fluor)
+        saveButton = QPushButton("Save")
+        saveButton.clicked.connect(self._save_trans_fluor)
         #plotButton = QPushButton("Plot transmission")
         #plotButton.clicked.connect(self._update_trans_cv)
         #fluorButton = QPushButton("Plot flurorescence")
@@ -210,6 +214,7 @@ class ApplicationWindow(QMainWindow):
         tmbox.addWidget(QLabel("Energy range (keV)"))
         tmbox.addLayout(rangebox)
         tmbox.addWidget(plotButton)
+        tmbox.addWidget(saveButton)
         self.chkbox_resol = QCheckBox("Detector resolution FWHM (eV)")
         self.chkbox_resol.stateChanged.connect(self.chkbox_resol_action)
         self.chkbox_resol.setChecked(True)
@@ -659,11 +664,19 @@ class ApplicationWindow(QMainWindow):
         self._update_fluor_cv()
 
 
-
     def _plot_trans_fluor(self):
         self._update_trans_cv()
         self._update_fluor_cv()
 
+
+    def _save_trans_fluor(self):
+        # save ascii data
+        # enes_keV, flout, qeout
+
+        # -- specify folder? or automatic ? --
+        
+        default.save_numpy_arrays(self.enes_keV,self.qeout,'./output/qe.txt')
+        default.save_numpy_arrays(self.enes_keV,self.flout,'./output/fluor.txt')
 
         
     def _update_fluor_cv_by_radionuclide(self):
@@ -707,7 +720,8 @@ class ApplicationWindow(QMainWindow):
                     if name+"Gamma" in self.not_draw_lines: continue
                     specG += activitytoday * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,1.0/2.,resolution/sigma_from_fwhm)
 
-
+            self.flout+=specX
+            self.flout+=specG
             self.ax_fl.plot(self.enes_keV,specX,linestyle='-',marker='',label=elXray)
             self.ax_fl.plot(self.enes_keV,specG,linestyle='-',marker='',label=name)
             self.ax_fl.legend(loc='upper right',fontsize=8)
@@ -728,6 +742,7 @@ class ApplicationWindow(QMainWindow):
         self.apply_detector_resolution()
         self.apply_detector_solidangle()
         self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
+        self.flout=np.zeros_like(self.enes_keV)
         self.ax_fl.clear()
         if "name" not in [*self.tgt.keys()]:
             sys.stderr.write('Warning: update_fluor_cv, no target set\n')
@@ -767,6 +782,7 @@ class ApplicationWindow(QMainWindow):
                 specs[elind] += flux * beamtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,gamma/2.,resolution/sigma_from_fwhm)
         cindex={x:i for i,x in enumerate([xrl.AtomicNumberToSymbol(z) for z in zs])}
         for el,spec in zip(elms,specs):
+            self.flout+=spec
             self.ax_fl.plot(self.enes_keV,spec,linestyle='-',marker='',color=cm.jet(cindex[el]/len(cindex)),label=el)
 
         if len(self.rads)!=0:  self._update_fluor_cv_by_radionuclide()
@@ -787,6 +803,7 @@ class ApplicationWindow(QMainWindow):
         self.apply_detector_resolution()
         self.apply_detector_solidangle()
         self.enes_keV=np.arange(self.er_low,self.er_high+self.er_low+self.er_step,self.er_step)
+        self.qeout=np.zeros_like(self.enes_keV)
         self.ax.clear()
         trans_all,trans_each=self._transmission()
         phabs_all,phabs_each=self._photoel()
@@ -803,7 +820,8 @@ class ApplicationWindow(QMainWindow):
         #    for ph,det in zip(abs_each,self.dets):
         #        self.ax.plot(self.enes_keV,ph,'--',label="totalabs %s %.2e"%(det['name'],det['thickness']))
         #    self.ax.plot(self.enes_keV,abs_all,'-',label="totalabs all")
-        self.ax.plot(self.enes_keV, trans_all*phabs_all,'-',color='black',label="trans x phabs")
+        self.qeout=trans_all*phabs_all
+        self.ax.plot(self.enes_keV, self.qeout,'-',color='black',label="trans x phabs")
         self.ax.legend(loc='upper right',fontsize=8)
         self.ax.set_xlabel("Energy (keV)")
         self.ax.set_xlim(self.er_low,self.er_high)
