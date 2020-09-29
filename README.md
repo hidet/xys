@@ -45,6 +45,10 @@ Energy range の設定は Low, High を入力してその間の Step を keV 単
 
 測定器の立体角は Solidangle ratio で 0 から 1 の実数を入力する。これは X 線の強度にリニアに効いてくる。
 
+### Save
+
+Save ボタンを追加した (2020 Sep 29)。とりあえず、エネルギー範囲を **Step** (keV) で指定した間隔に対する quantum efficiency (`qe.txt`) と fluorescence (`fluor.txt`) を ascii として `./output` ディレクトリに出力する。ファイル名は `_001.txt`, `_002.txt` と連番で増えていくようにしてある (あまり深くは考えていない)。エネルギー範囲が広くて **Step** が細かいとファイルサイズが大きくなるので注意。
+
 ## 原理
 
 基本的には xraylib にまとめられている断面積の情報を使って物質内でのフォトンの透過や吸収そして蛍光を計算している。xraylib には[オンライン版](http://lvserver.ugent.be/xraylib-web/)もあるので、どのような物質に対してどのような情報を得られるのか見ておくと理解しやすい。
