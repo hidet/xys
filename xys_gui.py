@@ -672,11 +672,12 @@ class ApplicationWindow(QMainWindow):
     def _save_trans_fluor(self):
         # save ascii data
         # enes_keV, flout, qeout
-
         # -- specify folder? or automatic ? --
-        
-        default.save_numpy_arrays(self.enes_keV,self.qeout,'./output/qe.txt')
-        default.save_numpy_arrays(self.enes_keV,self.flout,'./output/fluor.txt')
+        savedir='./output'
+        os.makedirs(savedir, exist_ok=True)
+        # - save -
+        default.save_numpy_arrays(self.enes_keV,self.qeout,'%s/qe.txt'%(savedir))
+        default.save_numpy_arrays(self.enes_keV,self.flout,'%s/fluor.txt'%(savedir))
 
         
     def _update_fluor_cv_by_radionuclide(self):
