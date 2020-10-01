@@ -39,7 +39,7 @@ class ApplicationWindow(QMainWindow):
 
         self.setWindowTitle("xray yield simulation")
              
-        self.resize(1200, 700)
+        self.resize(1200, 750)
         
         self.er_low=0.1# keV
         self.er_high=20.# keV
@@ -233,14 +233,17 @@ class ApplicationWindow(QMainWindow):
        
         topright=QWidget()
         trbox=QVBoxLayout()
-        trans_cv = FigureCanvas(Figure(figsize=(8, 6), dpi=80))
+        mini_width=300
+        self.fig_tr = Figure(figsize=(8, 6), dpi=80)
+        trans_cv = FigureCanvas(self.fig_tr)
         trans_tlbar = NavigationToolbar(trans_cv, self)
-        trans_tlbar.setMinimumWidth(300)
+        trans_tlbar.setMinimumWidth(mini_width)
         trans_tlbar.setStyleSheet("QToolBar { border: 0px }")
         self.ax = trans_cv.figure.subplots()
-        fluor_cv = FigureCanvas(Figure(figsize=(8, 6), dpi=80))
+        self.fig_fl = Figure(figsize=(8, 6), dpi=80)
+        fluor_cv = FigureCanvas(self.fig_fl)
         fluor_tlbar = NavigationToolbar(fluor_cv, self)
-        fluor_tlbar.setMinimumWidth(300)
+        fluor_tlbar.setMinimumWidth(mini_width)
         fluor_tlbar.setStyleSheet("QToolBar { border: 0px }")
         self.ax_fl = fluor_cv.figure.subplots()
         trbox.addWidget(trans_tlbar)
@@ -678,6 +681,13 @@ class ApplicationWindow(QMainWindow):
         # - save -
         default.save_numpy_arrays(self.enes_keV,self.qeout,'%s/qe.txt'%(savedir))
         default.save_numpy_arrays(self.enes_keV,self.flout,'%s/fluor.txt'%(savedir))
+        # -- figure save --
+        f_tr=default.file_check('%s/qe.pdf'%(savedir))
+        self.fig_tr.savefig(f_tr,format='pdf')
+        print('%s is created.'%(f_tr))
+        f_fl=default.file_check('%s/fluor.pdf'%(savedir))
+        self.fig_fl.savefig(f_fl,format='pdf')
+        print('%s is created.'%(f_fl))
 
         
     def _update_fluor_cv_by_radionuclide(self):
