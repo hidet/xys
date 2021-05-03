@@ -118,6 +118,9 @@ class MaterialTabWidget(QWidget):
         self.ra_cb.currentIndexChanged.connect(self.ra_select)      
         self.rad_act_le = QLineEdit()
         self.rad_date_le = QLineEdit()
+        self.rad_date_m_le = QLineEdit()
+        self.rad_act_m_le = QLineEdit()
+        self.rad_act_m_le.setReadOnly(True)
         self.rad_today_le = QLineEdit()
         self.rad_today_le.setReadOnly(True)
         self.rad_hl_le = QLineEdit()
@@ -125,12 +128,15 @@ class MaterialTabWidget(QWidget):
         self.rad_time_le = QLineEdit()# duration
         self.rad_act_le.setValidator(QDoubleValidator(0,1e30,999))
         self.rad_date_le.setValidator(QIntValidator(19000101,99991231))
+        self.rad_date_m_le.setValidator(QIntValidator(19000101,99991231))
         self.rad_time_le.setValidator(QDoubleValidator(0,1e30,999))
         self.rad_act_le.setText("1e6")
         self.rad_date_le.setText("20110311")
+        self.rad_date_m_le.setText("20200311")
         self.rad_time_le.setText("3600.")
         self.rad_act_le.returnPressed.connect(self.apply_rad_act)
         self.rad_date_le.returnPressed.connect(self.apply_rad_date)
+        self.rad_date_m_le.returnPressed.connect(self.apply_rad_date_measure)
         self.rad_time_le.returnPressed.connect(self.apply_rad_time)
         
         if self.name=="bem":
@@ -177,22 +183,32 @@ class MaterialTabWidget(QWidget):
                  
         # RadioNuclide
         elif self.name=="rad":
+            # calibrated radioactivity
             radactw=QWidget()
             radactl=QHBoxLayout(radactw)
             radactl.addWidget(QLabel("Activity calib (Bq):"))
             radactl.addWidget(self.rad_act_le)
+            # date of calibration
             raddatew=QWidget()
             raddatel=QHBoxLayout(raddatew)
             raddatel.addWidget(QLabel("Date calib (e.g., 20110311): "))
             raddatel.addWidget(self.rad_date_le)
+            # half life
             radhlw=QWidget()
             radhll=QHBoxLayout(radhlw)
             radhll.addWidget(QLabel("Half life (days): "))
             radhll.addWidget(self.rad_hl_le)
+            # date of measurement
+            raddatemw=QWidget()
+            raddateml=QHBoxLayout(raddatemw)
+            raddateml.addWidget(QLabel("Date measure (e.g., 20200311): "))
+            raddateml.addWidget(self.rad_date_m_le)
+            #
             radtodayw=QWidget()
             radtodayl=QHBoxLayout(radtodayw)
             radtodayl.addWidget(QLabel("Activity today (Bq): "))
             radtodayl.addWidget(self.rad_today_le)
+            # duration time
             radtimew=QWidget()
             radtimel=QHBoxLayout(radtimew)
             radtimel.addWidget(QLabel("Duration time (sec): "))
@@ -212,6 +228,22 @@ class MaterialTabWidget(QWidget):
             #radil.addWidget(radtimew)
             main_layout.addWidget(radtimew)
             #main_layout.addWidget(radiw)
+
+        elif self.name=="bet":# between materials = filter
+            main_layout.addLayout(ly1)
+            main_layout.addLayout(ly2)
+            main_layout.addLayout(ly3)
+            main_layout.addWidget(QLabel("Element"))
+            main_layout.addWidget(self.el_cb)
+            main_layout.addWidget(QLabel("NIST compound"))
+            main_layout.addWidget(self.nist_cb)
+            main_layout.addWidget(QLabel("Compound parser (e.g., CdTe) press return"))
+            main_layout.addWidget(self.cp_le)
+            self.chkbox_luxelht = QCheckBox("add LUXEL HT window")
+            self.chkbox_luxelht.stateChanged.connect(self.chkbox_luxelht_action)
+            self.chkbox_luxelht.setChecked(False)
+            main_layout.addWidget(self.chkbox_luxelht)
+            
             
         else:
             main_layout.addLayout(ly1)
@@ -281,7 +313,7 @@ class MaterialTabWidget(QWidget):
         self.parent.cc_table.setItem(row,1, QTableWidgetItem(str(self.mat['thickness'])))
         self.parent.cc_table.setItem(row,2, QTableWidgetItem(str(self.mat['density'])))
         self.parent.cc_table.setItem(row,3, QTableWidgetItem(self.mat['name']))
-        
+
         
     def add_material(self):
         if "name" not in [*self.mat.keys()]:
@@ -507,6 +539,25 @@ class MaterialTabWidget(QWidget):
         self.rad['halflife']=hl
 
         
+    def apply_rad_date_measure(self):
+        dt=self._get_measure_dt_days()
+        A=0.
+        A0=0.
+        hl=0.
+        if "activity" in [*self.rad.keys()]: A0=self.rad['activity']
+        if "name" in [*self.rad.keys()]:
+            try:
+                hl=self.parent.RDNHL[self.parent.RDNLIST.index(self.rad['name'])]
+                A=A0 * np.exp(-np.log(2)/hl * dt)
+            except:
+                A=0.
+        self.rad_act_m_le.setText("%.3e"%A)
+        self.rad_hl_le.setText("%.3f"%hl)
+        self.rad['activitymeasure']=A
+        self.rad['halflife']=hl
+        
+
+        
     def _get_dt_days(self):
         now = datetime.now()
         today = now.strftime("%Y%m%d")
@@ -541,6 +592,47 @@ class MaterialTabWidget(QWidget):
             self.rad['deltadays']=dt
         return dt
 
+
+    def _get_measure_dt_days(self):
+        now = datetime.now()
+        today = now.strftime("%Y%m%d")
+        mt=st=self.rad_date_m_le.text()
+        if len(mt)!=8:# 20110311
+            sys.stderr.write('Error: input is not valid\n')
+            self.rad['mdate']=today
+            self.rad_date_m_le.setText(today)
+            return
+        st=self.rad_date_le.text()
+        if len(st)!=8:# 20110311
+            sys.stderr.write('Error: input is not valid\n')
+            self.rad['date']=today
+            self.rad_date_le.setText(today)
+            return
+        year=int(st[0:4])
+        month=int(st[4:6])
+        day=int(st[6:8])
+        flag=False
+        td=None
+        dt=0.
+        if month>=1 and month<=12:
+            if month in [1,3,5,7,8,10,12]:
+                if day>=1 and day<=31: flag=True
+            elif month in [4,6,9,11]:
+                if day>=1 and day<=30: flag=True
+            elif month==2:
+                if day>=1 and day<=29: flag=True# leap day?
+        if flag==False:
+            self.rad['date']=today
+            self.rad_date_le.setText(today)
+            td = now - now
+        else:
+            self.rad['date']=st
+            td = now - datetime(year,month,day)
+        if td:
+            dt = td.total_seconds()/86400.# days
+            self.rad['deltadays']=dt
+        return dt
+    
     
     def ra_select(self):
         r=self.ra_cb.currentIndex()
@@ -590,7 +682,30 @@ class MaterialTabWidget(QWidget):
         else:
             self.mat={}
 
+    def chkbox_luxelht_action(self):
+        if self.chkbox_luxelht.isChecked():
+            self.nist_cb.setCurrentIndex(0)
+            self.el_cb.setCurrentIndex(0)
+            self.cp_le.setText("")
+            self.mat['name']="LUXELHT"# <- use this name as a flag
+            # dummy info
+            self.mat['nElements']=1
+            self.mat['Elements']=(1)
+            self.mat['massFractions']=(1.)
+            self.mat['density']=1.
+            self.mat['thickness']=0.01
+            self.mat_dens_le.setText(str(self.mat['density']))
+            self.mat_thick_le.setText(str(self.mat['thickness']))
+            self.add_material()
+        else:
+            self.mat={}
+            self.nist_cb.setCurrentIndex(0)
+            self.el_cb.setCurrentIndex(0)
+            self.cp_le.setText("")
+            self.mat_dens_le.setText("")
+            self.mat_thick_le.setText("")
         
+            
     # this was used for debug
     def update_mat_table(self):
         self.apply_mat_thickness()

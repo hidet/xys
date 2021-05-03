@@ -472,11 +472,24 @@ class ApplicationWindow(QMainWindow):
             name=bet['name']
             thickness=bet['thickness']
             density=bet['density']
-            each=np.exp(-np.array([xrl.CS_Total_CP(name,E) for E in self.enes_keV])*density*thickness)
+            if (name=="LUXELHT"):# <- use LUXEL HT window
+                each = self._trans_luxel_ht_window()
+            else:
+                each=np.exp(-np.array([xrl.CS_Total_CP(name,E) for E in self.enes_keV])*density*thickness)
             trans_each.append(each)
             trans_all=trans_all*each
         return trans_all,trans_each
 
+
+    def _trans_luxel_ht_window(self):
+        from scipy.interpolate import interp1d
+        df = pd.read_csv(self.csvd+"LUXEL_filter_HT_large.csv")
+        ene = np.array(df['ev'].values,dtype=float)
+        tra = np.array(df['trans'].values,dtype=float)
+        f = interp1d(ene, tra)
+        each = f(self.enes_keV*1e3)/100.
+        return each
+    
 
     def _photoel(self):
         phabs_all=np.ones_like(self.enes_keV,dtype=np.float64)
