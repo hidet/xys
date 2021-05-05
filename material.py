@@ -320,8 +320,8 @@ class MaterialTabWidget(QWidget):
             sys.stderr.write('Error: add_material, no material selected\n')
             return
         self.apply_mat_thickness()
-        if self.mat['density']<=0:
-            sys.stderr.write('Error: add_material, density should be a positive value\n')
+        if self.mat['thickness']<=0:
+            sys.stderr.write('Error: add_material, thickness should be a positive value\n')
             return
         self.apply_mat_density()
         if self.mat['density']<=0:
@@ -650,6 +650,7 @@ class MaterialTabWidget(QWidget):
         try:
             self.nist_cb.setCurrentIndex(0)
             self.el_cb.setCurrentIndex(0)
+            if self.name=="bet": self.chkbox_luxelht.setChecked(False)
             self.mat=xrl.CompoundParser(self.cp_le.text())
             self.mat['name']=self.cp_le.text()
             self.apply_mat_thickness()
@@ -662,6 +663,7 @@ class MaterialTabWidget(QWidget):
         if Z>0:
             self.nist_cb.setCurrentIndex(0)
             self.cp_le.setText("")
+            if self.name=="bet": self.chkbox_luxelht.setChecked(False)
             self.mat=xrl.CompoundParser(xrl.AtomicNumberToSymbol(Z))
             self.mat['name']=xrl.AtomicNumberToSymbol(Z) 
             self.apply_mat_thickness()
@@ -675,6 +677,7 @@ class MaterialTabWidget(QWidget):
         if self.nist_cb.currentIndex()>0:
             self.el_cb.setCurrentIndex(0)
             self.cp_le.setText("")
+            if self.name=="bet": self.chkbox_luxelht.setChecked(False)
             self.mat=xrl.GetCompoundDataNISTByIndex(self.nist_cb.currentIndex()-1)
             self.apply_mat_thickness()
             self.mat_dens_le.setText(str(self.mat['density']))
@@ -697,13 +700,10 @@ class MaterialTabWidget(QWidget):
             self.mat_dens_le.setText(str(self.mat['density']))
             self.mat_thick_le.setText(str(self.mat['thickness']))
             self.add_material()
-        else:
-            self.mat={}
-            self.nist_cb.setCurrentIndex(0)
-            self.el_cb.setCurrentIndex(0)
-            self.cp_le.setText("")
             self.mat_dens_le.setText("")
             self.mat_thick_le.setText("")
+        else:
+            self.mat={}
         
             
     # this was used for debug

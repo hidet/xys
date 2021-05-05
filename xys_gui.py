@@ -5,6 +5,8 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy.special
+from scipy.interpolate import interp1d
+
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -482,7 +484,6 @@ class ApplicationWindow(QMainWindow):
 
 
     def _trans_luxel_ht_window(self):
-        from scipy.interpolate import interp1d
         df = pd.read_csv(self.csvd+"LUXEL_filter_HT_large.csv")
         ene = np.array(df['ev'].values,dtype=float)
         tra = np.array(df['trans'].values,dtype=float)
@@ -701,6 +702,29 @@ class ApplicationWindow(QMainWindow):
         f_fl=default.file_check('%s/fluor.pdf'%(savedir))
         self.fig_fl.savefig(f_fl,format='pdf')
         print('%s is created.'%(f_fl))
+        try :
+            import ROOT
+            frname=default.file_check('%s/out.root'%(savedir))
+            f_root=ROOT.TFile(frname,"recreate")
+            f_root.cd()
+            l=self.enes_keV[0]-self.er_step/2.
+            h=self.enes_keV[-1]+self.er_step/2.
+            nbin=int((h-l)/self.er_step)-1
+            hfluor = ROOT.TH1F("hfluor","hfluor",nbin,l,h)
+            for e,f in zip(self.enes_keV,self.flout):
+                i = hfluor.FindBin(e)
+                hfluor.SetBinContent(i,f)
+            gqe=ROOT.TGraph(len(self.enes_keV),self.enes_keV,self.qeout)
+            gqe.SetNameTitle("gqe","gqe")
+            gfl=ROOT.TGraph(len(self.enes_keV),self.enes_keV,self.flout)
+            gfl.SetNameTitle("gfl","gfl")
+            hfluor.Write()
+            gqe.Write()
+            gfl.Write()
+            f_root.Close()
+            print("%s is created."%(frname))
+        except ImportError:
+            return
 
         
     def _update_fluor_cv_by_radionuclide(self):
