@@ -709,7 +709,7 @@ class ApplicationWindow(QMainWindow):
             f_root.cd()
             l=self.enes_keV[0]-self.er_step/2.
             h=self.enes_keV[-1]+self.er_step/2.
-            nbin=int((h-l)/self.er_step)-1
+            nbin=int((h-l)/self.er_step)
             hfluor = ROOT.TH1F("hfluor","hfluor",nbin,l,h)
             for e,f in zip(self.enes_keV,self.flout):
                 i = hfluor.FindBin(e)
