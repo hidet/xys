@@ -637,8 +637,8 @@ class ApplicationWindow(QMainWindow):
         name=self.tgt['name']
         zs=[*self.tgt['Elements']]
         lines=[xrl.__getattribute__('%s_LINE'%(x)) for x in self.LINES]
-        linetypes=[l for l in self.LINES for z in zs]
-        sgblinetypes=[l for l in self.SGBLINES for z in zs]
+        linetypes=np.array([l for l in self.LINES for z in zs])
+        sgblinetypes=np.array([l for l in self.SGBLINES for z in zs])
         els=np.array([xrl.AtomicNumberToSymbol(z) for i in range(len(lines)) for z in zs])
         el_inds=np.array([i for k in range(len(lines)) for i,z in enumerate(zs)])
         enes=np.array([line_wrap.get_lineenergy(z,line) for line in lines for z in zs])
@@ -651,6 +651,8 @@ class ApplicationWindow(QMainWindow):
         enes=enes[indx]
         gammas=gammas[indx]
         intens=intens[indx]
+        linetypes=linetypes[indx]
+        sgblinetypes=sgblinetypes[indx]
         # fill tabel
         self.line_table.setRowCount(0)# reset rows
         self.line_table.setRowCount(len(els))
@@ -802,14 +804,15 @@ class ApplicationWindow(QMainWindow):
         self.bemtab.add_beam()
         flux=self.bem['beamflux']
         beamtimesec=self.beam_duration# sec
+        title=self.tgt['name']
+        beamene = self.bem['beamene']
         zs=[*self.tgt['Elements']]
         phabs_all,phabs_each=self._photoel()
         solidangle=self.detector_solidangle
         resolution=self.detector_resolution
-
-        lines=[xrl.__getattribute__('%s_LINE'%(x)) for x in self.LINES]
-        linetypes=[l for l in self.LINES for z in zs]
-        sgblinetypes=[l for l in self.SGBLINES for z in zs]
+        lines=np.array([xrl.__getattribute__('%s_LINE'%(x)) for x in self.LINES])
+        linetypes=np.array([l for l in self.LINES for z in zs])
+        sgblinetypes=np.array([l for l in self.SGBLINES for z in zs])
         elms=[xrl.AtomicNumberToSymbol(z) for i in range(len(lines)) for z in zs]
         els=np.array([xrl.AtomicNumberToSymbol(z) for i in range(len(lines)) for z in zs])
         el_inds=np.array([i for k in range(len(lines)) for i,z in enumerate(zs)])
@@ -823,6 +826,8 @@ class ApplicationWindow(QMainWindow):
         enes=enes[indx]
         gammas=gammas[indx]
         intens=intens[indx]
+        linetypes=linetypes[indx]
+        sgblinetypes=sgblinetypes[indx]
         specs=[np.zeros_like(self.enes_keV,dtype=np.float64) for i in range(len(zs))]
         for i,(el,elind,lt,sgblt,ene,gamma,norm) in enumerate(zip(els,el_inds,linetypes,sgblinetypes,enes,gammas,intens)):
             if ene>0. and gamma>0.:
@@ -840,6 +845,7 @@ class ApplicationWindow(QMainWindow):
         self.ax_fl.set_xlim(self.er_low,self.er_high)
         if self.er_low<=0.1: self.ax_fl.set_xlim(0.,self.er_high)
         self.ax_fl.set_ylabel("Normalized intensity")
+        self.ax_fl.set_title("%s, beam %.3f keV, resol %.1f eV"%(title,beamene,resolution))
         self.ax_fl.figure.canvas.draw()
 
         
