@@ -268,7 +268,8 @@ class MaterialTabWidget(QWidget):
         self.apply_beam_time()
         self.parent.bem={}
         self.parent.bem=copy.deepcopy(self.bem)
-        
+        self.parent.update_line_table()
+                                        
 
     def add_radionuclide(self):
         if "name" not in [*self.rad.keys()]:
@@ -442,6 +443,7 @@ class MaterialTabWidget(QWidget):
         else:
             self.bem_beamene_le.setText("20.")
             self.bem['beamene']=20.
+        
 
     def apply_beamalpha(self):
         s=self.bem_beamalpha_le.text()

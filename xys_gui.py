@@ -539,7 +539,6 @@ class ApplicationWindow(QMainWindow):
         name=self.tgt['name']
         thickness=self.tgt['thickness']
         density=self.tgt['density']
-        self.bemtab.add_beam()
         beamene=self.bem['beamene']
         alpha=self.bem['beamalpha']
         beta=self.bem['beambeta']
@@ -560,7 +559,6 @@ class ApplicationWindow(QMainWindow):
         if "name" not in [*self.tgt.keys()]:
             sys.stderr.write('Error: _xrf_intensity, tgt has no name\n')
             return 0.
-        self.bemtab.add_beam()
         beamene=self.bem['beamene']
         thickness=self.tgt['thickness']
         density=self.tgt['density']
