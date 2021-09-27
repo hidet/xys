@@ -64,7 +64,7 @@ def get_linewidth(z,linetype):
 
 def get_lineenergy(z,line):
     try:
-        ene=xrl.LineEnergy(z,line)
+        ene=xrl.LineEnergy(z,int(line))
     except:
         ene=0.
     return ene
