@@ -566,9 +566,9 @@ class ApplicationWindow(QMainWindow):
         els=[*self.tgt['Elements']]# Z
         massfr=[*self.tgt['massFractions']]
         el_ind=np.where(np.array(els)==z)[0][0]
-        A_corr = self._selfabs_corr(z,line)
+        A_corr = self._selfabs_corr(z,int(line))
         try:
-            Q = xrl.CS_FluorLine_Kissel(z,line,beamene)
+            Q = xrl.CS_FluorLine_Kissel(z,int(line),beamene)
         except:
             Q=0.
         return Q * massfr[el_ind] * density * thickness * A_corr
