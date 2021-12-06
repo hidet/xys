@@ -76,7 +76,7 @@ class MaterialTabWidget(QWidget):
         ly3.addWidget(self.mat_thick_le)
         ly3.addWidget(self.mat_dens_le)
         # Element
-        el_list=["%d: %s"%(i,xrl.AtomicNumberToSymbol(z)) for i,z in enumerate(np.arange(1,108,1),dtype=int)]
+        el_list=["%d: %s"%(i,xrl.AtomicNumberToSymbol(z)) for i,z in enumerate(np.arange(1,108,1,dtype=int))]
         self.el_cb = QComboBox()
         self.el_cb.addItem("None")
         self.el_cb.addItems(el_list)
