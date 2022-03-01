@@ -571,6 +571,14 @@ class ApplicationWindow(QMainWindow):
             Q = xrl.CS_FluorLine_Kissel(z,int(line),beamene)
         except:
             Q=0.
+        # printf check
+        #if (int(line)==-3):
+        #    print("---------------------------------------------")
+        #    print("Element: ",z)
+        #    print("beam (keV): ",beamene)
+        #    print("Q: %.3f"%(Q))
+        #    print("mass fraction: %.3f"%(massfr[el_ind]))
+        #    print("A_corr: %.3f"%(A_corr))
         return Q * massfr[el_ind] * density * thickness * A_corr
 
 
@@ -766,7 +774,7 @@ class ApplicationWindow(QMainWindow):
             for ene,norm in zip(GammaEnergies,GammaIntensities):
                 if ene>0. and norm>0.:
                     if name+"Gamma" in self.not_draw_lines: continue
-                    specG += activitytoday * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,1.0/2.,resolution/sigma_from_fwhm)
+                    specG += activitytoday * radtimesec * solidangle * norm * trans_all * phabs_all * voigt(self.enes_keV*1e3,ene*1e3,1.0/2.,resolution/sigma_from_fwhm)
 
             self.flout+=specX
             self.flout+=specG
